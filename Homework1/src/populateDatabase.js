@@ -16,4 +16,6 @@ async function populateDatabase() {
   console.timeEnd('Data Population Timer');
 }
 
-populateDatabase();
+//populateDatabase();
+
+export {populateDatabase};

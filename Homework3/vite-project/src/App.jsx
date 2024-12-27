@@ -11,6 +11,7 @@ function App() {
                 <Route path="/" element={<Layout />}>
                     <Route path="/historicalData" element={<HistoricalDataPage />} />
                     <Route path="/totalProfits" element={<TotalProfits />} />
+                    <Route path="/technical" element={<TechnicalAnalysis />} />
                 </Route>
             </Routes>
         </Router>
