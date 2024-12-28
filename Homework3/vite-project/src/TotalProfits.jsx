@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -13,23 +13,66 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import axios from "axios";
 
 export default function TotalProfits() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [issuer, setIssuer] = React.useState("");
+  const [issuer, setIssuer] = useState("");
+  const [data, setData] = useState([]);
+  const [issuers, setIssuers] = useState([]);
 
   const handleIssuerChange = (event) => {
     setIssuer(event.target.value);
   };
 
-  const mockData = [
-    { date: "2024-12-01", totalProfit: "4,800" },
-    { date: "2024-12-02", totalProfit: "4,956" },
-    { date: "2024-12-03", totalProfit: "5,625" },
-    { date: "2024-12-04", totalProfit: "3,993" },
-    { date: "2024-12-05", totalProfit: "4,932" },
-  ];
+  const fetchIssuers = async () => {
+    try {
+      const response = await fetch("http://localhost:4500/stock/");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      setIssuers(result.data);
+    } catch (error) {
+      console.error("Error fetching issuers:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchIssuers();
+  }, []);
+
+  const fetchData = async () => {
+    if (!issuer || !startDate || !endDate) {
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:4500/stock/${issuer}/total-profit/from-to`,
+        {
+          fromDate: startDate.toISOString(),
+          toDate: endDate.toISOString(),
+        }
+      );
+      setData(response.data.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(); 
+  }, [issuer, startDate, endDate]);
+
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = d.getDate().toString().padStart(2, "0");
+    const month = (d.getMonth() + 1).toString().padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   return (
     <Box sx={{ padding: 4 }}>
@@ -67,14 +110,16 @@ export default function TotalProfits() {
 
         <FormControl sx={{ minWidth: 120 }}>
           <InputLabel id="issuer-select-label">Issuer</InputLabel>
-          <Select
-            labelId="issuer-select-label"
-            id="issuer-select"
-            value={issuer}
-            onChange={handleIssuerChange}
-          >
-            <MenuItem value={"REPL"}>REPL</MenuItem>
-            <MenuItem value={"Other"}>Other</MenuItem>
+          <Select value={issuer} onChange={handleIssuerChange}>
+            {issuers.length > 0 ? (
+              issuers.map((issuerCode) => (
+                <MenuItem key={issuerCode} value={issuerCode}>
+                  {issuerCode}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem value="REPL">Loading...</MenuItem>
+            )}
           </Select>
         </FormControl>
       </Box>
@@ -95,17 +140,17 @@ export default function TotalProfits() {
             </TableRow>
           </TableHead>
           <TableBody sx={{ backgroundColor: "#F0F0F0" }}>
-            {mockData.map((row, index) => (
+            {data.map((row, index) => (
               <TableRow key={index}>
                 <TableCell sx={{ border: "1px solid black" }}>
-                  {row.date}
+                  {formatDate(row.date)}
                 </TableCell>
                 <TableCell
                   sx={{
                     border: "1px solid black",
                   }}
                 >
-                  {row.totalProfit}
+                  {row.totalProfitInDenars}
                 </TableCell>
               </TableRow>
             ))}

@@ -10,6 +10,7 @@ const TechnicalAnalysis = () => {
   const [indicators, setIndicators] = useState([]);
   const [signals, setSignals] = useState([]);
   const [timePeriod, setTimePeriod] = useState("1month");
+  const [issuers, setIssuers] = useState([]);
 
   const handleIssuerChange = (event) => {
     setIssuer(event.target.value);
@@ -31,6 +32,23 @@ const TechnicalAnalysis = () => {
       console.error("Error fetching stock data:", error);
     }
   };
+
+  const fetchIssuers = async () => {
+    try {
+      const response = await fetch("http://localhost:4500/stock/");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      setIssuers(result.data);
+    } catch (error) {
+      console.error("Error fetching issuers:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchIssuers();
+  }, []);
 
   const groupByTimePeriod = (data, period) => {
     if (period === "all") return data;
@@ -140,8 +158,8 @@ const TechnicalAnalysis = () => {
         parseFloat(item.lastTransactionPrice.replace(",", "")),
         parseFloat(item.maks),
         parseFloat(item.min),
-        parseFloat(item.averagePrice.replace(",", ""))
-      ]
+        parseFloat(item.averagePrice.replace(",", "")),
+      ],
     }));
 
   const chartOptions = {
@@ -182,8 +200,15 @@ const TechnicalAnalysis = () => {
       <FormControl sx={{ minWidth: 120, marginRight: 2 }}>
         <InputLabel>Issuer</InputLabel>
         <Select value={issuer} onChange={handleIssuerChange}>
-          <MenuItem value={"REPL"}>REPL</MenuItem>
-          <MenuItem value={"Other"}>Other</MenuItem>
+          {issuers.length > 0 ? (
+            issuers.map((issuerCode) => (
+              <MenuItem key={issuerCode} value={issuerCode}>
+                {issuerCode}
+              </MenuItem>
+            ))
+          ) : (
+            <MenuItem value="REPL">Loading...</MenuItem>
+          )}
         </Select>
       </FormControl>
 
