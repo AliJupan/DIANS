@@ -13,7 +13,8 @@ import MenuItem from '@mui/material/MenuItem';
 
 const pages = [
   { name: 'Historical Data', route: '/historicalData' },
-  { name: 'Total Profits', route: '/totalProfits' }
+  { name: 'Total Profits', route: '/totalProfits' },
+  { name: 'Technical', route: '/technical' }
 ];
 
 function ResponsiveAppBar() {
