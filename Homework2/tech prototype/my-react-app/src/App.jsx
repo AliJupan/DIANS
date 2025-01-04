@@ -2,7 +2,6 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Layout from "./Components/Layout";
 import HistoricalDataPage from "./HistoricalData";
 import TotalProfits from "./TotalProfits";
-import TechnicalAnalysis from "./TechnicalAnalysis";
 
 function App() {
     return (
