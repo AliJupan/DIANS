@@ -1,0 +1,22 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model StockPrice {
+  id                     Int      @id @default(autoincrement())
+  lastTransactionPrice   String
+  maks                   Float?
+  min                    Float?
+  averagePrice           String
+  profit                 String   @default("0.00")
+  quantity               Int      @default(0)
+  turnoverInBestInDenars String   @default("0")
+  totalProfitInDenars    String   @default("0")
+  issuerCode             String
+  date                   DateTime
+}
