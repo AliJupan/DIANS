@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=hmw_user
+      - POSTGRES_PASSWORD=hmw_password
+      - POSTGRES_DB=hmwdb
+      - DATABASE_URL=postgresql://hmw_user:hmw_password@postgres:5432/hmwdb?schema=public
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  backend:
+    build: ./BackEnd  
+    ports:
+      - "4500:4500"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: hmw_user
+      POSTGRES_PASSWORD: hmw_password
+      POSTGRES_DB: hmwdb
+      DATABASE_URL : postgresql://hmw_user:hmw_password@postgres:5432/hmwdb?schema=public
+    depends_on:
+      - postgres
+    networks:
+      - app_network
+  frontend:
+    build: ./Frontend/homeWork4  
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app_network
+    restart: always 
+
+volumes:
+  postgres:
+
+networks:
+  app_network:
+    driver: bridge
